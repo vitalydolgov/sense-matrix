@@ -26,11 +26,15 @@ class matrix angle =
 
     method push =
       let pixels = Matrix.to_pyarray matrix in
-      sense.&("set_pixels")[|pixels|]
+      sense.&("set_pixels")[|pixels|] |> ignore
 
     method clear =
       matrix <- Matrix.empty ();
       self#push
+
+    method low_light state =
+      let state' = Py.Bool.of_bool state in
+      sense.@$("low_light") <- state'
 
     initializer self#pull
   end

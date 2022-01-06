@@ -1,0 +1,4 @@
+(library
+ (name playground)
+ (flags (-open Base) (-open Lights))
+ (libraries base lights))
