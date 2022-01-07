@@ -1,73 +1,21 @@
 open Sense
 
-let normalize string =
-  Str.(global_substitute (regexp " ") (fun _ -> "")) string
-  |> String.to_array
+let clear = ref false
+let angle = ref 0
 
+let speclist =
+  [("-clear", Arg.Set clear, "Clear LED matrix");
+   ("-angle", Arg.Set_int angle, "Rotate (0, 90, 180, 270)")]
 
-let heart =
-  let array =
-    normalize
-
-      "0 0 0 0 0 0 0 0\
-       0 1 1 0 0 1 1 0\
-       1 1 1 1 1 1 1 1\
-       1 1 1 1 1 1 1 1\
-       0 1 1 1 1 1 1 0\
-       0 0 1 1 1 1 0 0\
-       0 0 0 1 1 0 0 0\
-       0 0 0 0 0 0 0 0"
-
-    |> Array.map ~f:(function
-           | '0' -> Color.Blank
-           | _ -> Color.RGB (255, 0, 10))
-  in
-  Matrix.of_array (`Colors array)
-
-
-let small_heart =
-  let array =
-    normalize
-
-      "0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 1 0 0 1 0 0\
-       0 1 1 1 1 1 1 0\
-       0 0 1 1 1 1 0 0\
-       0 0 0 1 1 0 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0"
-
-    |> Array.map ~f:(function
-           | '0' -> Color.Blank
-           | _ -> Color.RGB (150, 0, 80))
-  in
-  Matrix.of_array (`Colors array)
-
-
-let very_small_heart =
-  let array =
-    normalize
-
-      "0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 1 1 1 1 0 0\
-       0 0 1 1 1 1 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0\
-       0 0 0 0 0 0 0 0"
-
-    |> Array.map ~f:(function
-           | '0' -> Color.Blank
-           | _ -> Color.RGB (120, 0, 100))
-  in
-  Matrix.of_array (`Colors array)
-
+let from_file f = Layer.of_file f |> Layer.to_matrix
 
 let run (m : matrix) =
   let t_short, t_long = 0.07, 0.97 in
-  let h, hs, hss = heart, small_heart, very_small_heart in
+  let h, hs, hss =
+    from_file "heart/normal",
+    from_file "heart/small",
+    from_file "heart/very_small"
+  in
   let set s = m#set_state s; m#push in
   let delay = Unix.sleepf in
   let beat () =
@@ -91,3 +39,10 @@ let run (m : matrix) =
   while true do
     beat ();
   done
+
+let _ =
+  Arg.parse speclist (fun _ -> ()) "Usage:";
+  let matrix = new matrix !angle in
+  if !clear
+  then matrix#clear
+  else run matrix

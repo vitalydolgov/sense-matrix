@@ -1,10 +1,9 @@
 open Pyops
 
-let sense_hat =
-  Py.initialize ();
-  Py.import "sense_hat"
+let _ = Py.initialize ()
 
 class matrix angle =
+  let sense_hat = Py.import "sense_hat" in
   let sense = sense_hat.&("SenseHat")[||] in
   let _ =
       let angle' = Py.Int.of_int angle in

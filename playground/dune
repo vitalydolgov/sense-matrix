@@ -1,4 +1,4 @@
-(library
- (name playground)
- (flags (-open Base) (-open Lights))
- (libraries base lights))
+(executable
+ (name heart)
+ (flags (-open Lights))
+ (libraries lights))

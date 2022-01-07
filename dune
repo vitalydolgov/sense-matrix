@@ -1,4 +1,3 @@
 (library
  (name lights)
- (flags (-open Base))
- (libraries base str pyml))
+ (libraries pyml re))
