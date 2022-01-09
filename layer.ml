@@ -40,7 +40,7 @@ let read_lines filename =
   in
   loop []
 
-let of_file name =
+let from_file name =
   let filename = filename name in
   let lines = read_lines filename in
   let lines_l, lines_m =

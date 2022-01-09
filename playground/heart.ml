@@ -1,22 +1,25 @@
-open Sense
+open Canvas
 
 let clear = ref false
 let angle = ref 0
+let sense = ref false
 
 let speclist =
-  [("-clear", Arg.Set clear, "Clear LED matrix");
-   ("-angle", Arg.Set_int angle, "Rotate (0, 90, 180, 270)")]
+  [("-clear", Arg.Set clear, "Clear matrix");
+   ("-angle", Arg.Set_int angle, "Rotate (0, 90, 180, 270)");
+   ("-sense", Arg.Set sense, "Display on Sense Hat")
+  ]
 
-let from_file f = Layer.of_file f |> Layer.to_matrix
+let from_file f = Layer.from_file f |> Layer.to_matrix
 
-let run (m : matrix) =
+let run (c : canvas) =
   let t_short, t_long = 0.07, 0.97 in
   let h, hs, hss =
     from_file "heart/normal",
     from_file "heart/small",
     from_file "heart/very_small"
   in
-  let set s = m#set_state s; m#push in
+  let set s = c#draw s in
   let delay = Unix.sleepf in
   let beat () =
     set h;
@@ -41,8 +44,17 @@ let run (m : matrix) =
   done
 
 let _ =
+  Sys.catch_break true;
   Arg.parse speclist (fun _ -> ()) "Usage:";
-  let matrix = new matrix !angle in
   if !clear
-  then matrix#clear
-  else run matrix
+  then
+    let canvas = new canvas (`Sense !angle) in
+    canvas#clear
+  else
+    let canvas =
+      if !sense
+      then new canvas (`Sense !angle)
+      else new canvas `Graphics
+    in
+    try run canvas with
+    | Sys.Break -> canvas#clear

@@ -7,3 +7,6 @@ val to_array : t -> int array array
 
 val of_pyarray : Pytypes.pyobject -> t
 val to_pyarray : t -> Pytypes.pyobject
+
+val dimx : int
+val dimy : int
